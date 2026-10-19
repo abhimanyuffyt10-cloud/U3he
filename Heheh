@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>Browser</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4500;
+            --bg: #ffffff;
+            --text: #202124;
+            --border: #dee1e6;
+            --icon: #5f6368;
+            --card-bg: #ffffff;
+            --overlay: rgba(0, 0, 0, 0.3);
+            --bar-bg: #ffffff;
+            --feed-bg: #f8f9fa;
+        }
+
+        .incognito-mode {
+            --bg: #1a1a1a;
+            --text: #e8eaed;
+            --border: #3c4043;
+            --icon: #bdc1c6;
+            --card-bg: #2d2e30;
+            --bar-bg: #2d2e30;
+            --feed-bg: #222325;
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent !important;
+            outline: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+        }
+
+        input {
+            -webkit-user-select: text !important;
+            user-select: text !important;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #content {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            background: var(--bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #home-screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg);
+            z-index: 10;
+            box-sizing: border-box;
+            overflow-y: auto;
+            padding-bottom: 30px;
+        }
+
+        .top-action-bar {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg);
+            z-index: 1500;
+            box-sizing: border-box;
+            gap: 6px;
+        }
+
+        .tab-square-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .tab-square-box {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--icon);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--icon);
+        }
+
+        .search-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 8vh;
+            padding-bottom: 25px;
+        }
+
+        .address-bar-box {
+            width: 88%;
+            max-width: 500px;
+            background: var(--bar-bg);
+            border: 1.5px solid var(--border);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            height: 52px;
+            gap: 10px;
+            position: relative;
+            box-sizing: border-box;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .engine-trigger {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+        }
+
+        .engine-logo-img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+        }
+
+        .engine-dropdown {
+            position: absolute;
+            top: 58px;
+            left: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .15);
+            display: none;
+            flex-direction: column;
+            width: 150px;
+            z-index: 2000;
+            overflow: hidden;
+        }
+
+        .engine-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .engine-option:active {
+            background: rgba(0, 0, 0, .05);
+        }
+
+        #url-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            color: var(--text);
+            font-size: 16px;
+            width: 100%;
+        }
+
+        /* Discover Feed Section Styles */
+        .discover-section {
+            width: 90%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-sizing: border-box;
+            padding-top: 10px;
+        }
+
+        .discover-header {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-left: 4px;
+            opacity: 0.9;
+        }
+
+        .discover-card {
+            background: var(--feed-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .discover-card:active {
+            transform: scale(0.98);
+        }
+
+        .discover-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .discover-card-snippet {
+            font-size: 13px;
+            color: var(--text);
+            opacity: 0.75;
+            line-height: 1.4;
+        }
+
+        .discover-card-footer {
+            font-size: 11px;
+            color: var(--icon);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .chrome-page {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 4000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .cp-header {
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 500;
+            background: var(--bg);
+            justify-content: space-between;
+        }
+
+        .cp-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cp-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .header-action-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-action-btn:active {
+            background: rgba(0, 0, 0, .05);
+        }
+
+        .cp-container {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .settings-btn-default {
+            width: 100%;
+            background: linear-gradient(135deg, #ff4500, #ff6a00);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 69, 0, .2);
+            transition: transform .1s;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+
+        .settings-btn-default:active {
+            transform: scale(.98);
+            opacity: .9;
+        }
+
+        .tab-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .tab-card-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, .03);
+        }
+
+        .tab-card-item.active-tab {
+            border-color: #ff4500;
+            background: rgba(255, 69, 0, .03);
+        }
+
+        .tab-title-text {
+            font-size: 15px;
+            font-weight: 600;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text);
+        }
+
+        .tab-close-btn {
+            background: none;
+            border: none;
+            color: var(--icon);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .img-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .85);
+            z-index: 6000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .img-preview-box {
+            max-width: 90%;
+            max-height: 65%;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .5);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="content">
+        <div id="home-screen">
+            <div class="top-action-bar">
+                <span id="inc-badge" class="material-icons" style="color:var(--icon);display:none;font-size:22px;padding:8px;">visibility_off</span>
+                <button class="tab-square-btn" onclick="openTabsManagerPage()">
+                    <div class="tab-square-box" id="top-tab-badge">1</div>
+                </button>
+            </div>
+
+            <div class="search-container">
+                <div class="address-bar-box">
+                    <div class="engine-trigger" onclick="toggleEngineDropdown(event)">
+                        <img src="https://duckduckgo.com/favicon.ico" class="engine-logo-img" id="current-engine-icon" alt="D">
+                    </div>
+                    <input type="text" id="url-input" placeholder="Search or enter URL" autocomplete="off">
+                    <span class="material-icons" style="color:var(--icon);font-size:24px;width:24px;height:24px;cursor:pointer;overflow:hidden" onclick="triggerBrowse()">search</span>
+
+                    <div class="engine-dropdown" id="engine-dropdown">
+                        <div class="engine-option" onclick="setEngine('Google','https://www.google.com/search?q=','https://www.google.com/favicon.ico')">
+                            <img src="https://www.google.com/favicon.ico" class="engine-logo-img"> Google
+                        </div>
+                        <div class="engine-option" onclick="setEngine('DuckDuckGo','https://duckduckgo.com/?q=','https://duckduckgo.com/favicon.ico')">
+                            <img src="https://duckduckgo.com/favicon.ico" class="engine-logo-img"> DuckDuckGo
+                        </div>
+                        <div class="engine-option" onclick="setEngine('Bing','https://www.bing.com/search?q=','https://www.bing.com/favicon.ico')">
+                            <img src="https://www.bing.com/favicon.ico" class="engine-logo-img"> Bing
+                        </div>
+                        <div class="engine-option" onclick="setEngine('Yahoo','https://search.yahoo.com/search?p=','https://search.yahoo.com/favicon.ico')">
+                            <img src="https://search.yahoo.com/favicon.ico" class="engine-logo-img"> Yahoo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discover Feed Section -->
+            <div class="discover-section">
+                <div class="discover-header">
+                    <span class="material-icons" style="font-size: 20px; color: var(--primary);">explore</span>
+                    <span>Discover</span>
+                </div>
+
+                <div class="discover-card" onclick="openDiscoverItem('Latest technology trends and mobile innovations in 2026')">
+                    <div class="discover-card-title">Latest Technology Trends and Mobile Innovations</div>
+                    <div class="discover-card-snippet">Explore how modern mobile browsers are integrating lightning-fast web engines and advanced privacy controls.</div>
+                    <div class="discover-card-footer">
+                        <span class="material-icons" style="font-size: 14px;">schedule</span>
+                        <span>Tech News • 2 hours ago</span>
+                    </div>
+                </div>
+
+                <div class="discover-card" onclick="openDiscoverItem('Top open source projects for mobile developers')">
+                    <div class="discover-card-title">Top Open Source Projects for Mobile Developers</div>
+                    <div class="discover-card-snippet">Discover lightweight frameworks and webview tools that simplify building native-like apps using HTML and JavaScript.</div>
+                    <div class="discover-card-footer">
+                        <span class="material-icons" style="font-size: 14px;">code</span>
+                        <span>Development • 5 hours ago</span>
+                    </div>
+                </div>
+
+                <div class="discover-card" onclick="openDiscoverItem('Minimalist design principles for UI/UX')">
+                    <div class="discover-card-title">Minimalist Design Principles for Mobile Interfaces</div>
+                    <div class="discover-card-snippet">Why clean user interfaces, simple color palettes, and clutter-free screens improve overall user retention.</div>
+                    <div class="discover-card-footer">
+                        <span class="material-icons" style="font-size: 14px;">palette</span>
+                        <span>Design • Yesterday</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="chrome-tabs-page" class="chrome-page">
+        <div class="cp-header">
+            <div class="cp-header-left">
+                <button class="back-icon-btn" onclick="closePage('chrome-tabs-page')">
+                    <span class="material-icons" style="color:var(--text)">arrow_back</span>
+                </button>
+                <div style="color:var(--text)">Tabs</div>
+            </div>
+            <div class="cp-header-actions">
+                <button class="header-action-btn" onclick="addNewTabDirectly()">
+                    <span class="material-icons">add</span>
+                </button>
+                <button class="header-action-btn" onclick="clearAllTabs()">
+                    <span class="material-icons">delete_sweep</span>
+                </button>
+            </div>
+        </div>
+        <div class="cp-container" id="tabs-list-wrapper"></div>
+    </div>
+
+    <div id="image-download-modal" class="img-modal-overlay">
+        <img id="preview-img-target" class="img-preview-box" src="">
+        <button class="settings-btn-default" style="max-width:280px" onclick="executeImageDownload()">
+            <span class="material-icons">download</span>
+            <span>Download Image</span>
+        </button>
+        <button class="back-icon-btn" style="margin-top:12px;color:#fff" onclick="closeImageModal()">
+            <span class="material-icons">close</span>
+        </button>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById("url-input");
+        const home = document.getElementById("home-screen");
+        const engineDropdown = document.getElementById("engine-dropdown");
+        const currentEngineIcon = document.getElementById("current-engine-icon");
+
+        let currentEngineUrl = "https://duckduckgo.com/?q=";
+        let isIncognito = false;
+        let tabsList = [{ id: 1, title: "Home Dashboard", url: "" }];
+        let activeTabId = 1;
+        let selectedImgUrl = "";
+
+        document.addEventListener("click", function (e) {
+            engineDropdown.style.display = "none";
+            if (e.target.tagName === "IMG" && e.target.src && !e.target.classList.contains("engine-logo-img")) {
+                e.preventDefault();
+                selectedImgUrl = e.target.src;
+                document.getElementById("preview-img-target").src = selectedImgUrl;
+                document.getElementById("image-download-modal").style.display = "flex";
+            }
+        });
+
+        function toggleEngineDropdown(e) {
+            e.stopPropagation();
+            engineDropdown.style.display = (engineDropdown.style.display === "flex") ? "none" : "flex";
+        }
+
+        function setEngine(name, url, icon) {
+            currentEngineUrl = url;
+            currentEngineIcon.src = icon;
+            engineDropdown.style.display = "none";
+        }
+
+        urlInput.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                triggerBrowse();
+                urlInput.blur();
+            }
+        });
+
+        function triggerBrowse() {
+            let val = urlInput.value.trim();
+            if (!val) return;
+
+            let finalUrl = val.includes(".") && !val.includes(" ") 
+                ? (val.startsWith("http") ? val : "https://" + val) 
+                : currentEngineUrl + encodeURIComponent(val);
+
+            if (!isIncognito) {
+                let newId = Date.now();
+                tabsList.push({ id: newId, title: val, url: finalUrl });
+                activeTabId = newId;
+                updateTabBadges();
+            }
+
+            let hiddenLink = document.createElement("a");
+            hiddenLink.href = finalUrl;
+            hiddenLink.target = "_blank";
+            hiddenLink.rel = "noopener noreferrer";
+            document.body.appendChild(hiddenLink);
+            hiddenLink.click();
+            document.body.removeChild(hiddenLink);
+        }
+
+        function openDiscoverItem(queryText) {
+            urlInput.value = queryText;
+            triggerBrowse();
+        }
+
+        function updateTabBadges() {
+            let len = tabsList.length;
+            document.getElementById("top-tab-badge").innerText = len;
+        }
+
+        function openTabsManagerPage() {
+            const container = document.getElementById("tabs-list-wrapper");
+            container.innerHTML = "";
+
+            let listDiv = document.createElement("div");
+            listDiv.className = "tab-list-container";
+
+            tabsList.forEach(function (t) {
+                let card = document.createElement("div");
+                card.className = "tab-card-item" + (t.id === activeTabId ? " active-t
